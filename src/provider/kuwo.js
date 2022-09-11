@@ -1,16 +1,16 @@
 /* eslint-disable no-unused-vars */
 /* Author: @WinterXMQ */
-import async from 'async';
-import { getParameterByName } from '../utils';
+import async from "async";
+import { getParameterByName } from "../utils";
 
 function build_kuwo() {
   // Convert html code
   function html_decode(str) {
-    return str.replace(/(&nbsp;)/g, ' ');
+    return str.replace(/(&nbsp;)/g, " ");
   }
   // Fix single quote in json
   function fix_json(data) {
-    return data.replace(/(')/g, '"');
+    return data.replace(/(')/g, "\"");
   }
 
   function num2str(num) {
@@ -19,7 +19,7 @@ function build_kuwo() {
   }
 
   function kw_convert_song(item) {
-    const song_id = item.MUSICRID.split('_').pop();
+    const song_id = item.MUSICRID.split("_").pop();
     const track = {
       id: `kwtrack_${song_id}`,
       title: html_decode(item.SONGNAME),
@@ -27,9 +27,9 @@ function build_kuwo() {
       artist_id: `kwartist_${item.ARTISTID}`,
       album: html_decode(item.ALBUM),
       album_id: `kwalbum_${item.ALBUMID}`,
-      source: 'kuwo',
+      source: "kuwo",
       source_url: `http://www.kuwo.cn/yinyue/${song_id}`,
-      img_url: '',
+      img_url: "",
       url: `xmtrack_${song_id}`,
       lyric_url: song_id,
     };
@@ -50,11 +50,11 @@ function build_kuwo() {
     const hm = params[0];
 
     // Add song picture image
-    const target_url = `${'http://artistpicserver.kuwo.cn/pic.web?'
-        + 'type=rid_pic&pictype=url&size=240&rid='}${track.lyric_url}`;
+    const target_url = `${"http://artistpicserver.kuwo.cn/pic.web?"
+        + "type=rid_pic&pictype=url&size=240&rid="}${track.lyric_url}`;
     hm({
       url: target_url,
-      method: 'GET',
+      method: "GET",
       transformResponse: false,
     }).then((response) => {
       const { data } = response;
@@ -80,9 +80,9 @@ function build_kuwo() {
       artist_id: `kwartist_${item.artistid}`,
       album: html_decode(item.album),
       album_id: `kwalbum_${item.albumid}`,
-      source: 'kuwo',
+      source: "kuwo",
       source_url: `http://www.kuwo.cn/yinyue/${item.musicrid}`,
-      img_url: '',
+      img_url: "",
       url: `xmtrack_${item.musicrid}`,
       lyric_url: item.musicrid,
     };
@@ -101,9 +101,9 @@ function build_kuwo() {
       artist_id: `kwartist_${item.artistid}`,
       album: info.title,
       album_id: `kwalbum_${info.id}`,
-      source: 'kuwo',
+      source: "kuwo",
       source_url: `http://www.kuwo.cn/yinyue/${item.id}`,
-      img_url: '',
+      img_url: "",
       url: `xmtrack_${item.id}`,
       lyric_url: item.id,
     };
@@ -121,9 +121,9 @@ function build_kuwo() {
       artist_id: `kwartist_${item.artistid}`,
       album: html_decode(item.album),
       album_id: `kwalbum_${item.albumid}`,
-      source: 'kuwo',
+      source: "kuwo",
       source_url: `http://www.kuwo.cn/yinyue/${item.id}`,
-      img_url: '',
+      img_url: "",
       url: `xmtrack_${item.id}`,
       lyric_url: item.id,
     };
@@ -133,19 +133,19 @@ function build_kuwo() {
 
   function kw_search(url, hm, pfn) { // eslint-disable-line no-unused-vars
     // API From https://blog.csdn.net/u011354613/article/details/52756467
-    const keyword = getParameterByName('keywords', url);
-    let curpage = getParameterByName('curpage', url);
+    const keyword = getParameterByName("keywords", url);
+    let curpage = getParameterByName("curpage", url);
     // page number is started from 0
     curpage -= 1;
-    const target_url = `${'http://search.kuwo.cn/r.s?'
-        + 'ft=music&itemset=web_2013&client=kt'
-        + '&rformat=json&encoding=utf8'}${
-      '&all={0}&pn={1}&rn=20'.replace('{0}', keyword).replace('{1}', curpage)}`;
+    const target_url = `${"http://search.kuwo.cn/r.s?"
+        + "ft=music&itemset=web_2013&client=kt"
+        + "&rformat=json&encoding=utf8"}${
+      "&all={0}&pn={1}&rn=20".replace("{0}", keyword).replace("{1}", curpage)}`;
 
     return pfn((resolve, reject) => {
       hm({
         url: target_url,
-        method: 'GET',
+        method: "GET",
         transformResponse: false,
       }).then((response) => {
         let { data } = response;
@@ -161,13 +161,13 @@ function build_kuwo() {
 
   // eslint-disable-next-line no-unused-vars
   function kw_bootstrap_track(trackId, hm, pfn) {
-    const song_id = trackId.slice('kwtrack_'.length);
-    const target_url = `${'http://antiserver.kuwo.cn/anti.s?'
-        + 'type=convert_url&format=aac|mp3|wma&response=url&rid=MUSIC_'}${song_id}`;
+    const song_id = trackId.slice("kwtrack_".length);
+    const target_url = `${"http://antiserver.kuwo.cn/anti.s?"
+        + "type=convert_url&format=aac|mp3|wma&response=url&rid=MUSIC_"}${song_id}`;
     return pfn((resolve, reject) => {
       hm({
         url: target_url,
-        method: 'GET',
+        method: "GET",
         transformResponse: false,
       }).then((response) => {
         const { data } = response;
@@ -181,13 +181,13 @@ function build_kuwo() {
   }
 
   function kw_lyric(url, hm, pfn) { // eslint-disable-line no-unused-vars
-    const track_id = getParameterByName('lyric_url', url);
+    const track_id = getParameterByName("lyric_url", url);
     const target_url = `http://m.kuwo.cn/newh5/singles/songinfoandlrc?musicId=${track_id}`;
 
     return pfn((resolve, reject) => {
       hm({
         url: target_url,
-        method: 'GET',
+        method: "GET",
         transformResponse: false,
       }).then((response) => {
         let { data } = response;
@@ -199,7 +199,7 @@ function build_kuwo() {
           const s = parseInt(t - m * 60, 10);
           const ms = parseInt((t - m * 60 - s) * 100, 10);
           return `${str}[${num2str(m)}:${num2str(parseInt(s, 10))}.${num2str(ms)}]${item.lineLyric}\n`;
-        }, '');
+        }, "");
         return resolve({
           lyric,
         });
@@ -208,13 +208,13 @@ function build_kuwo() {
   }
 
   function kw_artist(url, hm, pfn) { // eslint-disable-line no-unused-vars
-    const artist_id = getParameterByName('list_id', url).split('_').pop();
+    const artist_id = getParameterByName("list_id", url).split("_").pop();
     return pfn((resolve, reject) => {
-      let target_url = `${'http://search.kuwo.cn/r.s?stype=artistinfo'
-            + '&artistid='}${artist_id}&encoding=utf8`;
+      let target_url = `${"http://search.kuwo.cn/r.s?stype=artistinfo"
+            + "&artistid="}${artist_id}&encoding=utf8`;
       hm({
         url: target_url,
-        method: 'GET',
+        method: "GET",
         transformResponse: false,
       }).then((response) => {
         let { data } = response;
@@ -227,12 +227,12 @@ function build_kuwo() {
         };
 
         // Get songs
-        target_url = `${'http://search.kuwo.cn/r.s?stype=artist2music'
-              + '&sortby=0&alflac=1&pcmp4=1&encoding=utf8'
-              + '&artistid='}${artist_id}&pn=0&rn=100`;
+        target_url = `${"http://search.kuwo.cn/r.s?stype=artist2music"
+              + "&sortby=0&alflac=1&pcmp4=1&encoding=utf8"
+              + "&artistid="}${artist_id}&pn=0&rn=100`;
         hm({
           url: target_url,
-          method: 'GET',
+          method: "GET",
           transformResponse: false,
         }).then((res) => {
           let { data: res_data } = res;
@@ -248,14 +248,14 @@ function build_kuwo() {
   }
 
   function kw_album(url, hm, pfn) { // eslint-disable-line no-unused-vars
-    const album_id = getParameterByName('list_id', url).split('_').pop();
+    const album_id = getParameterByName("list_id", url).split("_").pop();
     return pfn((resolve, reject) => {
-      const target_url = `${'http://search.kuwo.cn/r.s?pn=0&rn=1000&stype=albuminfo'
-            + '&albumid='}${album_id
+      const target_url = `${"http://search.kuwo.cn/r.s?pn=0&rn=1000&stype=albuminfo"
+            + "&albumid="}${album_id
       }&alflac=1&pcmp4=1&encoding=utf8&vipver=MUSIC_8.7.7.0_W4`;
       hm({
         url: target_url,
-        method: 'GET',
+        method: "GET",
         transformResponse: false,
       }).then((response) => {
         let { data } = response;
@@ -279,7 +279,7 @@ function build_kuwo() {
   }
 
   function kw_show_playlist(url, hm, pfn) {
-    let offset = getParameterByName('offset', url);
+    let offset = getParameterByName("offset", url);
     if (!offset) {
       offset = 0;
     }
@@ -334,11 +334,11 @@ function build_kuwo() {
         35: '欧洲',
         37: '华语',
       }; */
-    const target_url = `${'http://www.kuwo.cn/www/categoryNew/getPlayListInfoUnderCategory?'
-        + 'type=taglist&digest=10000&id='}${37}&start=${offset}&count=50`;
+    const target_url = `${"http://www.kuwo.cn/www/categoryNew/getPlayListInfoUnderCategory?"
+        + "type=taglist&digest=10000&id="}${37}&start=${offset}&count=50`;
 
     return pfn((resolve, reject) => {
-      hm({ url: target_url, method: 'GET' }).then((response) => {
+      hm({ url: target_url, method: "GET" }).then((response) => {
         const { data } = response.data;
         if (!data[0]) {
           return resolve([]);
@@ -357,13 +357,13 @@ function build_kuwo() {
   }
 
   function kw_get_playlist(url, hm, pfn) { // eslint-disable-line no-unused-vars
-    const list_id = getParameterByName('list_id', url).split('_').pop();
-    const target_url = `${'http://nplserver.kuwo.cn/pl.svc?'
-        + 'op=getlistinfo&pn=0&rn=200&encode=utf-8&keyset=pl2012&pcmp4=1'
-        + '&pid='}${list_id}&vipver=MUSIC_9.0.2.0_W1&newver=1`;
+    const list_id = getParameterByName("list_id", url).split("_").pop();
+    const target_url = `${"http://nplserver.kuwo.cn/pl.svc?"
+        + "op=getlistinfo&pn=0&rn=200&encode=utf-8&keyset=pl2012&pcmp4=1"
+        + "&pid="}${list_id}&vipver=MUSIC_9.0.2.0_W1&newver=1`;
 
     return pfn((resolve, reject) => {
-      hm({ url: target_url, method: 'GET' }).then((response) => {
+      hm({ url: target_url, method: "GET" }).then((response) => {
         const { data } = response;
 
         const info = {
@@ -388,7 +388,7 @@ function build_kuwo() {
     if (match != null) {
       const playlist_id = match[1];
       result = {
-        type: 'playlist',
+        type: "playlist",
         id: `kwplaylist_${playlist_id}`,
       };
     }
@@ -396,16 +396,16 @@ function build_kuwo() {
   }
 
   function get_playlist(url, hm, pfn) {
-    const list_id = getParameterByName('list_id', url).split('_')[0];
+    const list_id = getParameterByName("list_id", url).split("_")[0];
     switch (list_id) {
-      case 'kwplaylist':
-        return kw_get_playlist(url, hm, pfn);
-      case 'kwalbum':
-        return kw_album(url, hm, pfn);
-      case 'kwartist':
-        return kw_artist(url, hm, pfn);
-      default:
-        return null;
+    case "kwplaylist":
+      return kw_get_playlist(url, hm, pfn);
+    case "kwalbum":
+      return kw_album(url, hm, pfn);
+    case "kwartist":
+      return kw_artist(url, hm, pfn);
+    default:
+      return null;
     }
   }
 

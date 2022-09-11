@@ -8,7 +8,7 @@ function getCookieProvider() {
   // const domain = 'https://www.xiami.com';
   // const name = 'xm_sg_tk';
   const cookieProvider = {};
-  if (typeof chrome !== 'undefined') {
+  if (typeof chrome !== "undefined") {
     // chrome cookie provider
     // eslint-disable-next-line func-names
     cookieProvider.getCookie = function (url, name, callback) {
@@ -18,7 +18,7 @@ function getCookieProvider() {
         name,
       }, (cookie) => {
         if (cookie == null) {
-          return callback('');
+          return callback("");
         }
         return callback(cookie.value);
       });

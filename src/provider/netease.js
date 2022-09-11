@@ -1,21 +1,21 @@
 /* eslint-disable import/named */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { getParameterByName, getRandomHexString } from '../utils';
-import { aesEncrypt, rsaEncrypt } from '../crypto/crypto';
+import { getParameterByName, getRandomHexString } from "../utils";
+import { aesEncrypt, rsaEncrypt } from "../crypto/crypto";
 
-const $ = require('cheerio');
+const $ = require("cheerio");
 
 function encryptedRequest(text) {
-  const modulus = '00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b72'
-    + '5152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbd'
-    + 'a92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe48'
-    + '75d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7';
-  const nonce = '0CoJUm6Qyw8W8jud';
-  const pubKey = '010001';
+  const modulus = "00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b72"
+    + "5152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbd"
+    + "a92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe48"
+    + "75d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7";
+  const nonce = "0CoJUm6Qyw8W8jud";
+  const pubKey = "010001";
   text = JSON.stringify(text);
   const secKey = getRandomHexString(16);
-  const ivString = '0102030405060708';
+  const ivString = "0102030405060708";
   const encText = aesEncrypt(aesEncrypt(text, nonce, ivString), secKey, ivString);
   const encSecKey = rsaEncrypt(secKey, pubKey, modulus);
   const data = {
@@ -28,8 +28,8 @@ function encryptedRequest(text) {
 
 function NeteaseFactory() {
   function neShowPlaylist(url, hm, pfn) {
-    const order = 'hot';
-    const offset = getParameterByName('offset', url);
+    const order = "hot";
+    const offset = getParameterByName("offset", url);
     let targetUrl;
 
     if (offset != null) {
@@ -43,25 +43,25 @@ function NeteaseFactory() {
 
       hm({
         url: targetUrl,
-        method: 'GET',
+        method: "GET",
         transformResponse: false,
       }).then((response) => {
         let { data } = response;
         // TODO: replace jquery to raw document api
         data = $.parseHTML(data);
         // eslint-disable-next-line func-names
-        $(data).find('.m-cvrlst li').each(function () {
+        $(data).find(".m-cvrlst li").each(function () {
           const defaultPlaylist = {
-            cover_img_url: '',
-            title: '',
-            id: '',
-            source_url: '',
+            cover_img_url: "",
+            title: "",
+            id: "",
+            source_url: "",
           };
 
-          defaultPlaylist.cover_img_url = $(this).find('img')[0].attribs.src;
-          defaultPlaylist.title = $(this).find('div a')[0].attribs.title;
-          const url2 = $(this).find('div a')[0].attribs.href;
-          const listId = getParameterByName('id', url2);
+          defaultPlaylist.cover_img_url = $(this).find("img")[0].attribs.src;
+          defaultPlaylist.title = $(this).find("div a")[0].attribs.title;
+          const url2 = $(this).find("div a")[0].attribs.href;
+          const listId = getParameterByName("id", url2);
           defaultPlaylist.id = `neplaylist_${listId}`;
           defaultPlaylist.source_url = `http://music.163.com/#/playlist?id=${listId}`;
           result.push(defaultPlaylist);
@@ -114,24 +114,24 @@ function NeteaseFactory() {
     // special thanks for @Binaryify
     // https://github.com/Binaryify/NeteaseCloudMusicApi
     return pfn((resolve, reject) => {
-      const listId = getParameterByName('list_id', url).split('_').pop();
-      const targetUrl = 'http://music.163.com/weapi/v3/playlist/detail';
+      const listId = getParameterByName("list_id", url).split("_").pop();
+      const targetUrl = "http://music.163.com/weapi/v3/playlist/detail";
       const d = {
         id: listId,
         offset: 0,
         total: true,
         limit: 1000,
         n: 1000,
-        csrf_token: '',
+        csrf_token: "",
       };
       const data = encryptedRequest(d);
       // neEnsureCookie(function () {
       hm({
         url: targetUrl,
-        method: 'POST',
+        method: "POST",
         data,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
       }).then((response) => {
         const { data: res_data } = response;
@@ -144,16 +144,16 @@ function NeteaseFactory() {
         const tracks = [];
         Array.prototype.forEach.call(res_data.playlist.tracks, (trackJson, index) => {
           const defaultTrack = {
-            id: '0',
-            title: '',
-            artist: '',
-            artist_id: 'neartist_0',
-            album: '',
-            album_id: 'nealbum_0',
-            source: 'netease',
-            source_url: 'http://www.xiami.com/song/0',
-            img_url: '',
-            url: '',
+            id: "0",
+            title: "",
+            artist: "",
+            artist_id: "neartist_0",
+            album: "",
+            album_id: "nealbum_0",
+            source: "netease",
+            source_url: "http://www.xiami.com/song/0",
+            img_url: "",
+            url: "",
           };
           defaultTrack.id = `netrack_${trackJson.id}`;
           defaultTrack.title = trackJson.name;
@@ -176,9 +176,9 @@ function NeteaseFactory() {
   }
 
   function neBootstrapTrack(songId, hm, pfn) {
-    const targetUrl = 'http://music.163.com/weapi/song/enhance/player/url?csrf_token=';
-    const csrf = '';
-    songId = songId.slice('netrack_'.length);
+    const targetUrl = "http://music.163.com/weapi/song/enhance/player/url?csrf_token=";
+    const csrf = "";
+    songId = songId.slice("netrack_".length);
     const d = {
       ids: [songId],
       br: 320000,
@@ -189,10 +189,10 @@ function NeteaseFactory() {
     return pfn((resolve, reject) => {
       hm({
         url: targetUrl,
-        method: 'POST',
+        method: "POST",
         data,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
       }).then((response) => {
         const { data: res_data } = response;
@@ -212,9 +212,9 @@ function NeteaseFactory() {
 
   function neSearch(url, hm, pfn) {
     // use chrome extension to modify referer.
-    const targetUrl = 'http://music.163.com/api/search/pc';
-    const keyword = getParameterByName('keywords', url);
-    const curpage = getParameterByName('curpage', url);
+    const targetUrl = "http://music.163.com/api/search/pc";
+    const keyword = getParameterByName("keywords", url);
+    const curpage = getParameterByName("curpage", url);
     const reqData = {
       s: keyword,
       offset: 20 * (curpage - 1),
@@ -224,10 +224,10 @@ function NeteaseFactory() {
     return pfn((resolve, reject) => {
       hm({
         url: targetUrl,
-        method: 'POST',
+        method: "POST",
         data: reqData,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
       }).then((response) => {
         const { data } = response;
@@ -240,7 +240,7 @@ function NeteaseFactory() {
             artist_id: `neartist_${songInfo.artists[0].id}`,
             album: songInfo.album.name,
             album_id: `nealbum_${songInfo.album.id}`,
-            source: 'netease',
+            source: "netease",
             source_url: `http://music.163.com/#/song?id=${songInfo.id}`,
             img_url: songInfo.album.picUrl,
             url: `netrack_${songInfo.id}`,
@@ -261,14 +261,14 @@ function NeteaseFactory() {
   }
 
   function neAlbum(url, hm, pfn) {
-    const albumId = getParameterByName('list_id', url).split('_').pop();
+    const albumId = getParameterByName("list_id", url).split("_").pop();
     // use chrome extension to modify referer.
     const targetUrl = `http://music.163.com/api/album/${albumId}`;
 
     return pfn((resolve, reject) => {
       hm({
         url: targetUrl,
-        method: 'GET',
+        method: "GET",
       }).then((response) => {
         const { data } = response;
         const info = {
@@ -287,7 +287,7 @@ function NeteaseFactory() {
             artist_id: `neartist_${songInfo.artists[0].id}`,
             album: songInfo.album.name,
             album_id: `nealbum_${songInfo.album.id}`,
-            source: 'netease',
+            source: "netease",
             source_url: `http://music.163.com/#/song?id=${songInfo.id}`,
             img_url: songInfo.album.picUrl,
             url: `netrack_${songInfo.id}`,
@@ -308,14 +308,14 @@ function NeteaseFactory() {
   }
 
   function neArtist(url, hm, pfn) {
-    const artistId = getParameterByName('list_id', url).split('_').pop();
+    const artistId = getParameterByName("list_id", url).split("_").pop();
     // use chrome extension to modify referer.
     const targetUrl = `http://music.163.com/api/artist/${artistId}`;
 
     return pfn((resolve, reject) => {
       hm({
         url: targetUrl,
-        method: 'GET',
+        method: "GET",
       }).then((response) => {
         const { data } = response;
         const info = {
@@ -334,7 +334,7 @@ function NeteaseFactory() {
             artist_id: `neartist_${songInfo.artists[0].id}`,
             album: songInfo.album.name,
             album_id: `nealbum_${songInfo.album.id}`,
-            source: 'netease',
+            source: "netease",
             source_url: `http://music.163.com/#/song?id=${songInfo.id}`,
             img_url: songInfo.album.picUrl,
             url: `netrack_${songInfo.id}`,
@@ -355,10 +355,10 @@ function NeteaseFactory() {
   }
 
   function neLyric(url, hm, pfn) {
-    const trackId = getParameterByName('track_id', url).split('_').pop();
+    const trackId = getParameterByName("track_id", url).split("_").pop();
     // use chrome extension to modify referer.
-    const targetUrl = 'http://music.163.com/weapi/song/lyric?csrf_token=';
-    const csrf = '';
+    const targetUrl = "http://music.163.com/weapi/song/lyric?csrf_token=";
+    const csrf = "";
     const d = {
       id: trackId,
       lv: -1,
@@ -369,14 +369,14 @@ function NeteaseFactory() {
     return pfn((resolve, reject) => {
       hm({
         url: targetUrl,
-        method: 'POST',
+        method: "POST",
         data,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
       }).then((response) => {
         const { data: res_data } = response;
-        let lrc = '';
+        let lrc = "";
         if (res_data.lrc != null) {
           lrc = res_data.lrc.lyric;
         }
@@ -389,26 +389,26 @@ function NeteaseFactory() {
 
   function neParseUrl(url) {
     let result;
-    url = url.replace('music.163.com/#/my/m/music/playlist?', 'music.163.com/#/playlist?');
-    if (url.search('//music.163.com/#/m/playlist') !== -1 || url.search('//music.163.com/#/playlist') !== -1
-     || url.search('//music.163.com/playlist') !== -1) {
+    url = url.replace("music.163.com/#/my/m/music/playlist?", "music.163.com/#/playlist?");
+    if (url.search("//music.163.com/#/m/playlist") !== -1 || url.search("//music.163.com/#/playlist") !== -1
+     || url.search("//music.163.com/playlist") !== -1) {
       result = {
-        type: 'playlist',
-        id: `neplaylist_${getParameterByName('id', url)}`,
+        type: "playlist",
+        id: `neplaylist_${getParameterByName("id", url)}`,
       };
     }
     return result;
   }
 
   function getPlaylist(url, hm, pfn) {
-    const listId = getParameterByName('list_id', url).split('_')[0];
-    if (listId === 'neplaylist') {
+    const listId = getParameterByName("list_id", url).split("_")[0];
+    if (listId === "neplaylist") {
       return neGetPlaylist(url, hm, pfn);
     }
-    if (listId === 'nealbum') {
+    if (listId === "nealbum") {
       return neAlbum(url, hm, pfn);
     }
-    if (listId === 'neartist') {
+    if (listId === "neartist") {
       return neArtist(url, hm, pfn);
     }
     return null;

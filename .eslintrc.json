@@ -1,7 +1,0 @@
-{
-  "extends": "airbnb-base",
-  "rules": {
-      "camelcase":"off",
-      "import/named": "off"
-  }
-}

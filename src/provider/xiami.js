@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* global parseInt */
 /* eslint-disable no-param-reassign */
-import { MD5 } from '../crypto/crypto';
-import { getParameterByName } from '../utils';
+import { MD5 } from "../crypto/crypto";
+import { getParameterByName } from "../utils";
 
 function build_xiami() {
   function caesar(location) {
@@ -33,17 +33,17 @@ function build_xiami() {
       s.push(result[i].slice(-1));
     }
 
-    return unescape(s.join('')).replace(/\^/g, '0');
+    return unescape(s.join("")).replace(/\^/g, "0");
   }
 
   function handleProtocolRelativeUrl(url) {
     const regex = /^.*?\/\//;
-    const result = url.replace(regex, 'http://');
+    const result = url.replace(regex, "http://");
     return result;
   }
 
   function xm_retina_url(s) {
-    if (s.slice(-6, -4) === '_1') {
+    if (s.slice(-6, -4) === "_1") {
       return s.slice(0, -6) + s.slice(-4);
     }
     return s;
@@ -51,24 +51,24 @@ function build_xiami() {
 
   function xm_get_api_url(api, params, token) {
     const params_string = JSON.stringify(params);
-    const origin = `${token.split('_')[0]}_xmMain_${api}_${params_string}`;
+    const origin = `${token.split("_")[0]}_xmMain_${api}_${params_string}`;
     const sign = MD5(origin);
-    const baseUrl = 'https://www.xiami.com';
+    const baseUrl = "https://www.xiami.com";
     return encodeURI(`${baseUrl + api}?_q=${params_string}&_s=${sign}`);
   }
 
   function xm_api_get(hm, api, params, cookieProvider, callback) {
-    const domain = 'https://www.xiami.com';
-    const name = 'xm_sg_tk';
+    const domain = "https://www.xiami.com";
+    const name = "xm_sg_tk";
     cookieProvider.getCookie(domain, name, (token) => {
       const url = xm_get_api_url(api, params, token);
-      hm({ method: 'GET', url, cookieProvider }).then((response) => {
-        if (response.data.code === 'SG_TOKEN_EMPTY' || response.data.code === 'SG_TOKEN_EXPIRED'
-            || response.data.code === 'SG_INVALID') {
+      hm({ method: "GET", url, cookieProvider }).then((response) => {
+        if (response.data.code === "SG_TOKEN_EMPTY" || response.data.code === "SG_TOKEN_EXPIRED"
+            || response.data.code === "SG_INVALID") {
           // token expire, refetch token and start get url
           cookieProvider.getCookie(domain, name, (token2) => {
             const url2 = xm_get_api_url(api, params, token2);
-            hm({ method: 'GET', url: url2, cookieProvider }).then((res) => {
+            hm({ method: "GET", url: url2, cookieProvider }).then((res) => {
               callback(res);
             });
           });
@@ -84,26 +84,26 @@ function build_xiami() {
   }
 
   function xm_show_playlist(url, hm, pfn, cookieProvider) {
-    const offset = getParameterByName('offset', url);
+    const offset = getParameterByName("offset", url);
     const page = offset / 30 + 1;
     const pageSize = 60;
 
     return pfn((resolve, reject) => {
-      const api = '/api/list/collect';
+      const api = "/api/list/collect";
       const params = {
         pagingVO: {
           page,
           pageSize,
         },
-        dataType: 'system',
+        dataType: "system",
       };
       xm_api_get(hm, api, params, cookieProvider, (response) => {
         const result = response.data.result.data.collects.map((d) => {
           const default_playlist = {
-            cover_img_url: '',
-            title: '',
-            id: '',
-            source_url: '',
+            cover_img_url: "",
+            title: "",
+            id: "",
+            source_url: "",
           };
           default_playlist.cover_img_url = xm_get_low_quality_img_url(d.collectLogo);
           default_playlist.title = d.collectName;
@@ -121,10 +121,10 @@ function build_xiami() {
 
   // eslint-disable-next-line no-unused-vars
   function xm_bootstrap_track(trackId, hm, pfn) {
-    const target_url = `http://www.xiami.com/song/playlist/id/${trackId.slice('xmtrack_'.length)
+    const target_url = `http://www.xiami.com/song/playlist/id/${trackId.slice("xmtrack_".length)
     }/object_name/default/object_id/0/cat/json`;
     return pfn((resolve, reject) => {
-      hm({ method: 'GET', url: target_url }).then((response) => {
+      hm({ method: "GET", url: target_url }).then((response) => {
         const { data } = response;
         if (data.data.trackList == null) {
           return reject();
@@ -151,7 +151,7 @@ function build_xiami() {
       artist_id: `xmartist_${song_info.artist_id}`,
       album: song_info.album_name,
       album_id: `xmalbum_${song_info.album_id}`,
-      source: 'xiami',
+      source: "xiami",
       source_url: `http://www.xiami.com/song/${song_info.song_id}`,
       img_url: song_info.album_logo,
       url: `xmtrack_${song_info.song_id}`,
@@ -168,7 +168,7 @@ function build_xiami() {
       artist_id: `xmartist_${song_info.artistId}`,
       album: song_info.albumName,
       album_id: `xmalbum_${song_info.albumId}`,
-      source: 'xiami',
+      source: "xiami",
       source_url: `http://www.xiami.com/song/${song_info.songId}`,
       img_url: song_info.albumLogo,
       url: `xmtrack_${song_info.songId}`,
@@ -181,10 +181,10 @@ function build_xiami() {
   }
 
   function xm_get_playlist(url, hm, pfn, cookieProvider) { // eslint-disable-line no-unused-vars
-    const list_id = getParameterByName('list_id', url).split('_').pop();
+    const list_id = getParameterByName("list_id", url).split("_").pop();
 
     return pfn((resolve, reject) => {
-      const api = '/api/collect/initialize';
+      const api = "/api/collect/initialize";
       const params = {
         listId: parseInt(list_id, 10),
       };
@@ -196,7 +196,7 @@ function build_xiami() {
           id: `xmplaylist_${list_id}`,
           source_url: `http://www.xiami.com/collect/${list_id}`,
         };
-        const tracks = response.data.result.data.collectSongs.map(item => xm_convert_song2(item, 'artist_name'));
+        const tracks = response.data.result.data.collectSongs.map(item => xm_convert_song2(item, "artist_name"));
         return resolve({
           tracks,
           info,
@@ -207,9 +207,9 @@ function build_xiami() {
 
   function xm_search(url, hm, pfn, cookieProvider) { // eslint-disable-line no-unused-vars
     return pfn((resolve, reject) => {
-      const api = '/api/search/searchSongs';
-      const keyword = getParameterByName('keywords', url);
-      const curpage = getParameterByName('curpage', url);
+      const api = "/api/search/searchSongs";
+      const keyword = getParameterByName("keywords", url);
+      const curpage = getParameterByName("curpage", url);
       const pageSize = 60;
       const params = {
         pagingVO: {
@@ -219,7 +219,7 @@ function build_xiami() {
         key: keyword,
       };
       xm_api_get(hm, api, params, cookieProvider, (response) => {
-        const tracks = response.data.result.data.songs.map(item => xm_convert_song2(item, 'artistName'));
+        const tracks = response.data.result.data.songs.map(item => xm_convert_song2(item, "artistName"));
         return resolve({
           result: tracks,
           total: response.data.result.data.pagingVO.pages,
@@ -230,17 +230,17 @@ function build_xiami() {
 
   function xm_album(url, hm, pfn, cookieProvider) { // eslint-disable-line no-unused-vars
     return pfn((resolve, reject) => {
-      const album_id = getParameterByName('list_id', url).split('_').pop();
+      const album_id = getParameterByName("list_id", url).split("_").pop();
       const target_url = `http://api.xiami.com/web?v=2.0&app_key=1&id=${album_id
       }&page=1&limit=20&callback=jsonp217&r=album/detail`;
       hm({
         url: target_url,
-        method: 'GET',
+        method: "GET",
         transformResponse: false,
       })
         .then((response) => {
           let { data } = response;
-          data = data.slice('jsonp217('.length, -')'.length);
+          data = data.slice("jsonp217(".length, -")".length);
           data = JSON.parse(data);
 
           const info = {
@@ -250,7 +250,7 @@ function build_xiami() {
             source_url: `http://www.xiami.com/album/${data.data.album_id}`,
           };
 
-          const tracks = data.data.songs.map(item => xm_convert_song(item, 'singers'));
+          const tracks = data.data.songs.map(item => xm_convert_song(item, "singers"));
           return resolve({
             tracks,
             info,
@@ -261,20 +261,20 @@ function build_xiami() {
 
   function xm_artist(url, hm, pfn, cookieProvider) { // eslint-disable-line no-unused-vars
     return pfn((resolve, reject) => {
-      const artist_id = getParameterByName('list_id', url).split('_').pop();
+      const artist_id = getParameterByName("list_id", url).split("_").pop();
 
       let target_url = `http://api.xiami.com/web?v=2.0&app_key=1&id=${artist_id
       }&page=1&limit=20&_ksTS=1459931285956_216`
-            + '&callback=jsonp217&r=artist/detail';
+            + "&callback=jsonp217&r=artist/detail";
 
       hm({
         url: target_url,
-        method: 'GET',
+        method: "GET",
         transformResponse: false,
       })
         .then((response) => {
           let { data } = response;
-          data = data.slice('jsonp217('.length, -')'.length);
+          data = data.slice("jsonp217(".length, -")".length);
           data = JSON.parse(data);
 
           const info = {
@@ -288,16 +288,16 @@ function build_xiami() {
           }&page=1&limit=20&callback=jsonp217&r=artist/hot-songs`;
           hm({
             url: target_url,
-            method: 'GET',
+            method: "GET",
             transformResponse: false,
           })
             .then((res) => {
               let { data: res_data } = res;
-              res_data = res_data.slice('jsonp217('.length, -')'.length);
+              res_data = res_data.slice("jsonp217(".length, -")".length);
               res_data = JSON.parse(res_data);
 
               const tracks = res_data.data.map((item) => {
-                const track = xm_convert_song(item, 'singers');
+                const track = xm_convert_song(item, "singers");
                 track.artist_id = `xmartist_${artist_id}`;
                 return track;
               });
@@ -312,11 +312,11 @@ function build_xiami() {
 
   function xm_lyric(url, hm, pfn, cookieProvider) { // eslint-disable-line no-unused-vars
     // const track_id = getParameterByName('track_id', url).split('_').pop();
-    const lyric_url = getParameterByName('lyric_url', url);
+    const lyric_url = getParameterByName("lyric_url", url);
     return pfn((resolve, reject) => {
       hm({
         url: lyric_url,
-        method: 'GET',
+        method: "GET",
         transformResponse: false,
       }).then((response) => {
         const { data } = response;
@@ -333,7 +333,7 @@ function build_xiami() {
     if (match != null) {
       const playlist_id = match[1];
       result = {
-        type: 'playlist',
+        type: "playlist",
         id: `xmplaylist_${playlist_id}`,
       };
     }
@@ -341,16 +341,16 @@ function build_xiami() {
   }
 
   function get_playlist(url, hm, pfn, cookieProvider) {
-    const list_id = getParameterByName('list_id', url).split('_')[0];
+    const list_id = getParameterByName("list_id", url).split("_")[0];
     switch (list_id) {
-      case 'xmplaylist':
-        return xm_get_playlist(url, hm, pfn, cookieProvider);
-      case 'xmalbum':
-        return xm_album(url, hm, pfn, cookieProvider);
-      case 'xmartist':
-        return xm_artist(url, hm, pfn, cookieProvider);
-      default:
-        return null;
+    case "xmplaylist":
+      return xm_get_playlist(url, hm, pfn, cookieProvider);
+    case "xmalbum":
+      return xm_album(url, hm, pfn, cookieProvider);
+    case "xmartist":
+      return xm_artist(url, hm, pfn, cookieProvider);
+    default:
+      return null;
     }
   }
   return {

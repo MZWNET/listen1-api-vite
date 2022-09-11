@@ -1,36 +1,36 @@
 import {
   getParameterByName,
   httpParamEncode,
-} from './utils';
-import { hackHeader } from './hack_header';
-import NeteaseFactory from './provider/netease';
-import XiamiFactory from './provider/xiami';
-import QQFactory from './provider/qq';
-import KugouFactory from './provider/kugou';
-import KuwoFactory from './provider/kuwo';
-import BiliFactory from './provider/bilibili';
+} from "./utils";
+import { hackHeader } from "./hack_header";
+import NeteaseFactory from "./provider/netease";
+import XiamiFactory from "./provider/xiami";
+import QQFactory from "./provider/qq";
+import KugouFactory from "./provider/kugou";
+import KuwoFactory from "./provider/kuwo";
+import BiliFactory from "./provider/bilibili";
 
 function getAllProviders() {
   return [NeteaseFactory, QQFactory, XiamiFactory, KugouFactory, KuwoFactory, BiliFactory];
 }
 
 function getProviderByName(sourceName) {
-  if (sourceName === 'netease') {
+  if (sourceName === "netease") {
     return NeteaseFactory;
   }
-  if (sourceName === 'xiami') {
+  if (sourceName === "xiami") {
     return XiamiFactory;
   }
-  if (sourceName === 'qq') {
+  if (sourceName === "qq") {
     return QQFactory;
   }
-  if (sourceName === 'kugou') {
+  if (sourceName === "kugou") {
     return KugouFactory;
   }
-  if (sourceName === 'kuwo') {
+  if (sourceName === "kuwo") {
     return KuwoFactory;
   }
-  if (sourceName === 'bilibili') {
+  if (sourceName === "bilibili") {
     return BiliFactory;
   }
   return null;
@@ -38,22 +38,22 @@ function getProviderByName(sourceName) {
 
 function getProviderByItemId(itemId) {
   const prefix = itemId.slice(0, 2);
-  if (prefix === 'ne') {
+  if (prefix === "ne") {
     return NeteaseFactory;
   }
-  if (prefix === 'xm') {
+  if (prefix === "xm") {
     return XiamiFactory;
   }
-  if (prefix === 'qq') {
+  if (prefix === "qq") {
     return QQFactory;
   }
-  if (prefix === 'kg') {
+  if (prefix === "kg") {
     return KugouFactory;
   }
-  if (prefix === 'kw') {
+  if (prefix === "kw") {
     return KuwoFactory;
   }
-  if (prefix === 'bi') {
+  if (prefix === "bi") {
     return BiliFactory;
   }
   return null;
@@ -65,17 +65,17 @@ const platform = {};
 
 function loadNodejsDefaults() {
   // eslint-disable-next-line global-require
-  platform.nodejs = require('./platform/node');
+  platform.nodejs = require("./platform/node");
   globalCookieProvider = new platform.nodejs.CookieProvider();
   globalHTTPClient = platform.nodejs.HTTPClient;
 }
 function loadBrowserDefaults() {
   // eslint-disable-next-line global-require
-  platform.browser = require('./platform/browser');
+  platform.browser = require("./platform/browser");
   globalCookieProvider = platform.browser.CookieProvider;
 }
 
-if (typeof window === 'undefined') {
+if (typeof window === "undefined") {
   // nodejs
   // eslint-disable-next-line global-require
   loadNodejsDefaults();
@@ -102,28 +102,28 @@ function apiGet(url, httpClient, pfn, cookieProvider) {
 
 
   // router
-  if (url.search('/show_playlist') !== -1) {
-    const source = getParameterByName('source', url);
+  if (url.search("/show_playlist") !== -1) {
+    const source = getParameterByName("source", url);
     const provider = getProviderByName(source);
     return provider.showPlaylist(url, httpClient, pfn, cookieProvider);
   }
-  if (url.search('/playlist') !== -1) {
-    const listId = getParameterByName('list_id', url);
+  if (url.search("/playlist") !== -1) {
+    const listId = getParameterByName("list_id", url);
     const provider = getProviderByItemId(listId);
     return provider.getPlaylist(url, httpClient, pfn, cookieProvider);
   }
-  if (url.search('/search') !== -1) {
-    const source = getParameterByName('source', url);
+  if (url.search("/search") !== -1) {
+    const source = getParameterByName("source", url);
     const provider = getProviderByName(source);
     return provider.search(url, httpClient, pfn, cookieProvider);
   }
-  if (url.search('/lyric') !== -1) {
-    const trackId = getParameterByName('track_id', url);
+  if (url.search("/lyric") !== -1) {
+    const trackId = getParameterByName("track_id", url);
     const provider = getProviderByItemId(trackId);
     return provider.lyric(url, httpClient, pfn, cookieProvider);
   }
-  if (url.search('/bootstrap_track') !== -1) {
-    const trackId = getParameterByName('track_id', url);
+  if (url.search("/bootstrap_track") !== -1) {
+    const trackId = getParameterByName("track_id", url);
     const provider = getProviderByItemId(trackId);
     return provider.bootstrapTrack(trackId, httpClient, pfn, cookieProvider);
   }

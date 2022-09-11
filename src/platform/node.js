@@ -1,7 +1,7 @@
-import { hackHeader } from '../hack_header';
+import { hackHeader } from "../hack_header";
 
 // eslint-disable-next-line import/no-dynamic-require
-const request = require('request').defaults({ jar: true });
+const request = require("request").defaults({ jar: true });
 
 class CookieProvider {
   constructor() {
@@ -11,7 +11,7 @@ class CookieProvider {
   getCookie(url, name, callback) {
     const domain = this.getDomain(url);
     if (this.data[domain] == null) {
-      return callback('');
+      return callback("");
     }
     return callback(this.data[domain][name]);
   }
@@ -27,14 +27,14 @@ class CookieProvider {
   getCookieForHTTPHeader(url) {
     const domain = this.getDomain(url);
     if (this.data[domain] == null) {
-      return '';
+      return "";
     }
     const kvArray = [];
     Object.keys(this.data[domain]).forEach((k) => {
       const v = this.data[domain][k];
       kvArray.push(`${k}=${v}`);
     });
-    return `${kvArray.join(';')};`;
+    return `${kvArray.join(";")};`;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -51,7 +51,7 @@ function HTTPClient(params) {
   return new Promise((resolve, reject) => {
     let headers = {
       // eslint-disable-next-line max-len
-      'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36',
+      "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36",
     };
     if (params.headers !== undefined) {
       headers = Object.assign(headers, params.headers);
@@ -67,7 +67,7 @@ function HTTPClient(params) {
     if (params.cookieProvider !== undefined) {
       headers.Cookie = params.cookieProvider.getCookieForHTTPHeader(params.url);
     }
-    if (params.method === 'GET') {
+    if (params.method === "GET") {
       return request.get({
         headers,
         uri: params.url,
@@ -75,11 +75,11 @@ function HTTPClient(params) {
         if (error) {
           return reject();
         }
-        if (params.cookieProvider !== undefined && response.headers['set-cookie'] !== undefined) {
-          response.headers['set-cookie'].forEach((cookieString) => {
-            const kvString = cookieString.split(';')[0];
-            const k = kvString.split('=')[0];
-            const v = kvString.split('=')[1];
+        if (params.cookieProvider !== undefined && response.headers["set-cookie"] !== undefined) {
+          response.headers["set-cookie"].forEach((cookieString) => {
+            const kvString = cookieString.split(";")[0];
+            const k = kvString.split("=")[0];
+            const v = kvString.split("=")[1];
             params.cookieProvider.setCookie(params.url, k, v);
           });
         }
@@ -92,7 +92,7 @@ function HTTPClient(params) {
           data: JSON.parse(body),
         });
       });
-    } if (params.method === 'POST') {
+    } if (params.method === "POST") {
       return request.post({
         headers,
         uri: params.url,
